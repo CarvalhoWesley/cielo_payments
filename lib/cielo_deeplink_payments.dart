@@ -1,8 +1,7 @@
 import 'dart:async';
 
-import 'package:cielo_payments/enums/order/payment_code_enum.dart';
+import 'package:cielo_payments/cielo_payments.dart';
 import 'package:cielo_payments/cielo_deeplink_payments_platform_interface.dart';
-import 'package:cielo_payments/models/order/order.dart';
 import 'package:cielo_payments/models/order_request/order_request.dart';
 import 'package:flutter/foundation.dart';
 
@@ -80,9 +79,9 @@ class CieloDeeplinkPayments {
     }
   }
 
-  Future<void> printText() async {
+  Future<void> print(List<ItemPrintModel> items) async {
     try {
-      return CieloDeeplinkPaymentsPlatform.instance.printText();
+      return CieloDeeplinkPaymentsPlatform.instance.print(items);
     } catch (e) {
       rethrow;
     }

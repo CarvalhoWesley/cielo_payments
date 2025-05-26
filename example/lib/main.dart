@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cielo_payments/cielo_payments.dart';
@@ -79,42 +80,30 @@ class _PaymentAppState extends State<PaymentApp>
   Future<void> _processPrint() async {
     FocusScope.of(context).unfocus();
 
-    // final logo = await rootBundle.load('assets/images/logo.jpg');
-    // String base64 = base64Encode(logo.buffer.asUint8List());
+    final logo = await rootBundle.load('assets/images/logo.png');
+    String base64 = base64Encode(logo.buffer.asUint8List());
 
-    // final items = [
-    //   ItemPrintModel.text(
-    //     content: "TEXTO SMALL CENTRALIZADO",
-    //     align: AlignModeEnum.center,
-    //     fontFormat: FontFormatEnum.small,
-    //   ),
-    //   ItemPrintModel.text(
-    //     content: "TEXTO MEDIUM CENTRALIZADO",
-    //     align: AlignModeEnum.center,
-    //     fontFormat: FontFormatEnum.medium,
-    //   ),
-    //   ItemPrintModel.text(
-    //     content: "TEXTO LARGE CENTRALIZADO",
-    //     align: AlignModeEnum.center,
-    //     fontFormat: FontFormatEnum.large,
-    //   ),
-    //   ItemPrintModel.qrcode(
-    //     content: "https://example.com",
-    //     align: AlignModeEnum.center,
-    //     height: 200,
-    //   ),
-    //   ItemPrintModel.linewrap(lines: 1),
-    //   ItemPrintModel.barcode(
-    //     content: "123456789012",
-    //     align: AlignModeEnum.center,
-    //   ),
-    //   ItemPrintModel.image(
-    //     content: base64,
-    //     align: AlignModeEnum.center,
-    //   ),
-    //   ItemPrintModel.linewrap(lines: 2),
-    // ];
-    CieloPayments.deeplink.printText();
+    CieloPayments.deeplink.print(
+      [
+        ItemPrintModel.text(
+          content: 'Alinhamento à esquerda',
+          align: AlignModeEnum.left,
+          typeFace: TypeFaceEnum.normal,
+        ),
+        ItemPrintModel.text(
+          content: 'Centralizado',
+          align: AlignModeEnum.center,
+          typeFace: TypeFaceEnum.bold,
+        ),
+        ItemPrintModel.text(
+          content: 'Alinhado à direita',
+          align: AlignModeEnum.right,
+          typeFace: TypeFaceEnum.italic,
+        ),
+        ItemPrintModel.image(content: base64),
+        ItemPrintModel.linewrap(lines: 4),
+      ],
+    );
   }
 
   Future<void> _processPayment(

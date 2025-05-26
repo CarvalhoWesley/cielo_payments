@@ -1,4 +1,4 @@
-package br.com.g3soft.cielo_payments
+package br.com.joelabs.cielo_payments
 
 import androidx.annotation.NonNull
 

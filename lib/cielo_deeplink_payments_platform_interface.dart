@@ -1,6 +1,7 @@
 import 'package:cielo_payments/cielo_deeplink_payments_method_channel.dart';
 import 'package:cielo_payments/models/order/order.dart';
 import 'package:cielo_payments/models/order_request/order_request.dart';
+import 'package:cielo_payments/models/pos/item_print_model.dart';
 
 /// The [CieloDeeplinkPaymentsPlatform] abstract class defines the contract
 /// for platform-specific implementations of Cielo deeplink payments.
@@ -70,5 +71,5 @@ abstract class CieloDeeplinkPaymentsPlatform {
 
   /// Reprints a last transaction receipt.
   /// Returns a [String] containing the reprint result, or `null` if the operation fails.
-  Future<void> printText();
+  Future<void> print(List<ItemPrintModel> items);
 }

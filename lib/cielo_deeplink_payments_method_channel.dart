@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cielo_payments/models/order/order.dart';
+import 'package:cielo_payments/cielo_payments.dart';
 import 'package:cielo_payments/models/order_request/order_request.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -39,7 +39,7 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
     try {
       await getInitialLink();
     } on PlatformException catch (e) {
-      print("error: ${e.toString()}");
+      debugPrint("error: ${e.toString()}");
     }
 
     uriLinkStream.listen((Uri? uri) {
@@ -52,13 +52,13 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
       if (response?.isNotEmpty ?? false) {
         var coverted =
             String.fromCharCodes(base64Decode(response!.replaceAll("\n", "")));
-        print(coverted);
+        debugPrint(coverted);
 
         final order = Order.fromJson(coverted);
         _controller.add(order);
       }
     }, onError: (err) {
-      print(err.toString());
+      debugPrint(err.toString());
     });
   }
 
@@ -110,51 +110,27 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
   ///
   /// Throws an exception if an error occurs during platform communication.
   @override
-  Future<void> printText() async {
+  Future<void> print(List<ItemPrintModel> items) async {
     try {
       if (_transactionInProgress) return;
 
       _transactionInProgress = true;
 
-      final object = {
-        "operation": "PRINT_MULTI_COLUMN_TEXT",
-        "styles": [
-          {
-            "key_attributes_align": 1,
-            "key_attributes_textsize": 30,
-            "key_attributes_typeface": 0
+      for (var item in items) {
+        final object = await item.toPrint();
+        final uri = Uri(
+          scheme: 'lio',
+          host: 'print',
+          queryParameters: {
+            'request': base64.encode(utf8.encode(jsonEncode(object))),
+            'urlCallback': 'cielo://response',
           },
-          {
-            "key_attributes_align": 0,
-            "key_attributes_textsize": 20,
-            "key_attributes_typeface": 1
-          },
-          {
-            "key_attributes_align": 2,
-            "key_attributes_textsize": 15,
-            "key_attributes_typeface": 2
-          }
-        ],
-        "value": [
-          "Texto alinhado à esquerda.\n\n\n",
-          "Texto centralizado\n\n\n",
-          "Texto alinhado à direita\n\n\n"
-        ]
-      };
+        );
 
-      final uri = Uri(
-        scheme: 'lio',
-        host: 'print',
-        queryParameters: {
-          'request': base64.encode(utf8.encode(jsonEncode(object))),
-          'urlCallback': 'cielo://response',
-        },
-      );
-
-      launchUrl(uri);
+        await launchUrl(uri);
+      }
     } catch (e) {
       _transactionInProgress = false;
-      rethrow;
     }
   }
 }

@@ -1,9 +1,9 @@
 /// Enum para os valores de alinhamento
 enum AlignModeEnum {
-  left("LEFT"),
-  center("CENTER"),
-  right("RIGHT");
+  center(0),
+  left(1),
+  right(2);
 
-  final String value;
+  final int value;
   const AlignModeEnum(this.value);
 }

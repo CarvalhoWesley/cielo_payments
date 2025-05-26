@@ -2,7 +2,7 @@ import 'package:cielo_payments/cielo_deeplink_payments.dart';
 
 export 'enums/order/payment_code_enum.dart';
 export 'enums/pos/align_mode_enum.dart';
-export 'enums/pos/font_format_enum.dart';
+export 'enums/pos/type_face_enum.dart';
 export 'models/order/order.dart';
 export 'models/pos/item_print_model.dart';
 

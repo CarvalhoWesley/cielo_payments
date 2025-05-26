@@ -1,4 +1,4 @@
-package br.com.g3soft.cielo_payments_example
+package br.com.joelabs.cielo_payments_example
 
 import io.flutter.embedding.android.FlutterActivity
 
