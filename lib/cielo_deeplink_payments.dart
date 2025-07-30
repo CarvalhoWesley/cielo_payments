@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 class CieloDeeplinkPayments {
   late String _clientId;
   late String _accessToken;
+  late String _urlCallback;
 
   StreamSubscription<Order> Function(
     ValueChanged<Order>?, {
@@ -25,12 +26,14 @@ class CieloDeeplinkPayments {
   Future<void> init({
     required String clientId,
     required String accessToken,
+    String urlCallback = 'cielo://response',
   }) async {
     assert(clientId.isNotEmpty, 'Client ID cannot be empty');
     assert(accessToken.isNotEmpty, 'Access token cannot be empty');
 
     _clientId = clientId;
     _accessToken = accessToken;
+    _urlCallback = urlCallback;
   }
 
   /// Processes a payment with the provided parameters.
@@ -72,7 +75,8 @@ class CieloDeeplinkPayments {
 
     try {
       // Delegate the payment process to the platform
-      return CieloDeeplinkPaymentsPlatform.instance.payment(order);
+      return CieloDeeplinkPaymentsPlatform.instance
+          .payment(order, _urlCallback);
     } catch (e) {
       // Emit the error through the stream
       rethrow;
@@ -81,7 +85,8 @@ class CieloDeeplinkPayments {
 
   Future<void> print(List<ItemPrintModel> items) async {
     try {
-      return CieloDeeplinkPaymentsPlatform.instance.print(items);
+      return CieloDeeplinkPaymentsPlatform.instance
+          .print(items, _urlCallback);
     } catch (e) {
       rethrow;
     }

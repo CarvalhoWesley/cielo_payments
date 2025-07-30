@@ -49,7 +49,7 @@ abstract class CieloDeeplinkPaymentsPlatform {
   /// `null` if the transaction fails.
   ///
   /// This method must be implemented by a platform-specific class.
-  Future<void> payment(OrderRequest order);
+  Future<void> payment(OrderRequest order, String urlCallback);
 
   /// Processes a refund for a transaction with the provided parameters.
   ///
@@ -71,5 +71,5 @@ abstract class CieloDeeplinkPaymentsPlatform {
 
   /// Reprints a last transaction receipt.
   /// Returns a [String] containing the reprint result, or `null` if the operation fails.
-  Future<void> print(List<ItemPrintModel> items);
+  Future<void> print(List<ItemPrintModel> items, String urlCallback);
 }

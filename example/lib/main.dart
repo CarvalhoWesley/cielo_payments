@@ -49,6 +49,7 @@ class _PaymentAppState extends State<PaymentApp>
     CieloPayments.deeplink.init(
       clientId: 'pekop9oVJoD6yPFepY6pVQI0VDS1XxpHjwAooiQ0Av6BfuAXVU',
       accessToken: '19L5cEBLblVycvisy4Y8Q9xZuIFBezbKSfhXyGMtUdCXUd6Dfv',
+      urlCallback: 'cielo_example_app://response',
     );
 
     listenDeeplink = CieloPayments.deeplink.onTransactionListener((order) {
@@ -133,7 +134,7 @@ class _PaymentAppState extends State<PaymentApp>
         ],
       );
 
-      CieloPayments.deeplink.payment(order);
+      CieloPayments.deeplink.payment(order,);
     } catch (e) {
       log(e.toString());
       setState(() {

@@ -5,8 +5,6 @@ import 'package:cielo_payments/cielo_payments.dart';
 import 'package:cielo_payments/models/order_request/order_request.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:uni_links3/uni_links.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'cielo_deeplink_payments_platform_interface.dart';
 
@@ -20,8 +18,9 @@ import 'cielo_deeplink_payments_platform_interface.dart';
 class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
   static final _controller = StreamController<Order>.broadcast();
   static Stream<Order> get onTransaction => _controller.stream;
+  // Completer<void>? _deeplinkCompleter;
 
-  /// The [MethodChannel] used to interact with native platform code.
+  /// The [MethodChannel] usedc to interact with native platform code.
   ///
   /// This channel communicates with the platform using the channel name `cielo_payments`.
   @visibleForTesting
@@ -36,29 +35,19 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
   }
 
   void _startListener() async {
-    try {
-      await getInitialLink();
-    } on PlatformException catch (e) {
-      debugPrint("error: ${e.toString()}");
-    }
-
-    uriLinkStream.listen((Uri? uri) {
+    methodChannel.setMethodCallHandler((call) async {
       _transactionInProgress = false;
-
-      if (uri == null) return;
-
-      String? response = uri.queryParameters["response"];
-
-      if (response?.isNotEmpty ?? false) {
-        var coverted =
-            String.fromCharCodes(base64Decode(response!.replaceAll("\n", "")));
-        debugPrint(coverted);
-
-        final order = Order.fromJson(coverted);
-        _controller.add(order);
+      try {
+        if (call.method == 'onDeeplinkResponse') {
+          final Map<String, dynamic> data =
+              Map<String, dynamic>.from(call.arguments);
+          final tx = Order.fromMap(data);
+          _controller.add(tx);
+        }
+        // _deeplinkCompleter?.complete();
+      } catch (e) {
+        rethrow;
       }
-    }, onError: (err) {
-      debugPrint(err.toString());
     });
   }
 
@@ -75,22 +64,19 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
   ///
   /// Throws an exception if an error occurs during platform communication.
   @override
-  Future<void> payment(OrderRequest order) async {
+  Future<void> payment(OrderRequest order, String urlCallback) async {
     try {
       if (_transactionInProgress) return;
 
       _transactionInProgress = true;
 
-      final uri = Uri(
-        scheme: 'lio',
-        host: 'payment',
-        queryParameters: {
+      await methodChannel.invokeMethod(
+        'paymentDeeplink',
+        <String, dynamic>{
           'request': order.toJsonBase64(),
-          'urlCallback': 'cielo://response',
+          'urlCallback': urlCallback,
         },
       );
-
-      launchUrl(uri);
     } catch (e) {
       _transactionInProgress = false;
       rethrow;
@@ -110,7 +96,7 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
   ///
   /// Throws an exception if an error occurs during platform communication.
   @override
-  Future<void> print(List<ItemPrintModel> items) async {
+  Future<void> print(List<ItemPrintModel> items, String urlCallback) async {
     try {
       if (_transactionInProgress) return;
 
@@ -118,16 +104,18 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
 
       for (var item in items) {
         final object = await item.toPrint();
-        final uri = Uri(
-          scheme: 'lio',
-          host: 'print',
-          queryParameters: {
-            'request': base64.encode(utf8.encode(jsonEncode(object))),
-            'urlCallback': 'cielo://response',
+
+        final request = base64.encode(utf8.encode(jsonEncode(object)));
+
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        await methodChannel.invokeMethod(
+          'printDeeplink',
+          <String, dynamic>{
+            'request': request,
+            'urlCallback': urlCallback,
           },
         );
-
-        await launchUrl(uri);
       }
     } catch (e) {
       _transactionInProgress = false;
