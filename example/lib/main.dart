@@ -134,7 +134,7 @@ class _PaymentAppState extends State<PaymentApp>
         ],
       );
 
-      CieloPayments.deeplink.payment(order,);
+      CieloPayments.deeplink.payment(order);
     } catch (e) {
       log(e.toString());
       setState(() {

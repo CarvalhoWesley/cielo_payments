@@ -18,7 +18,6 @@ import 'cielo_deeplink_payments_platform_interface.dart';
 class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
   static final _controller = StreamController<Order>.broadcast();
   static Stream<Order> get onTransaction => _controller.stream;
-  // Completer<void>? _deeplinkCompleter;
 
   /// The [MethodChannel] usedc to interact with native platform code.
   ///
@@ -39,12 +38,16 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
       _transactionInProgress = false;
       try {
         if (call.method == 'onDeeplinkResponse') {
-          final Map<String, dynamic> data =
-              Map<String, dynamic>.from(call.arguments);
-          final tx = Order.fromMap(data);
-          _controller.add(tx);
+          String? response = call.arguments['response'];
+          if (response?.isNotEmpty ?? false) {
+            var coverted = String.fromCharCodes(
+                base64Decode(response!.replaceAll("\n", "")));
+            debugPrint(coverted);
+
+            final order = Order.fromJson(coverted);
+            _controller.add(order);
+          }
         }
-        // _deeplinkCompleter?.complete();
       } catch (e) {
         rethrow;
       }
