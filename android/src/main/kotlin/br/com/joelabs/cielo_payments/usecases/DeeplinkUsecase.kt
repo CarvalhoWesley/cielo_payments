@@ -24,7 +24,7 @@ class DeeplinkUsecase(private val activity: Activity?, private val channel: Meth
         val uriBuilder = Uri.Builder()
             .scheme("lio")
             .authority("payment")
-            .appendQueryParameter("urlCallback", urlCallback ?: "order://response")
+            .appendQueryParameter("urlCallback", urlCallback)
             .appendQueryParameter("request", request)
 
         val deeplinkUri = uriBuilder.build()
@@ -47,7 +47,7 @@ class DeeplinkUsecase(private val activity: Activity?, private val channel: Meth
         val uriBuilder = Uri.Builder()
             .scheme("lio")
             .authority("print")
-            .appendQueryParameter("urlCallback", urlCallback ?: "order://response")
+            .appendQueryParameter("urlCallback", urlCallback)
             .appendQueryParameter("request", request)
 
         val deeplinkUri = uriBuilder.build()
