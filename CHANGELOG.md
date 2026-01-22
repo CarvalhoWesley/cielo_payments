@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Otimização no tempo de espera da impressão múltipla (reduzido de 1s para 100ms)
+
 ## 1.0.0
 
 * Correção no sistema de impressão sequencial
