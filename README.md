@@ -35,7 +35,7 @@ Adicione o pacote ao seu `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cielo_payments: ^1.0.0
+  cielo_payments: any
 ```
 
 Execute:

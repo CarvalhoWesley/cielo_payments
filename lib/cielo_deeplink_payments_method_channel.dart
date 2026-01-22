@@ -144,7 +144,7 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
       debugPrint('[PRINT] Checking if transaction in progress: $_transactionInProgress');
       while (_transactionInProgress) {
         debugPrint('[PRINT] Waiting for previous transaction to finish...');
-        await Future.delayed(const Duration(seconds: 1));
+        await Future.delayed(const Duration(milliseconds: 100));
       }
 
       debugPrint('[PRINT] Setting transaction in progress');
