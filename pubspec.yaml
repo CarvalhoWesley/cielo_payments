@@ -1,7 +1,9 @@
 name: cielo_payments
-description: A new Flutter plugin project.
-version: 0.0.3
-homepage:
+description: Plugin Flutter para integração com terminais de pagamento Cielo LIO. Suporta pagamentos (crédito, débito, PIX, vouchers), impressões personalizadas e callbacks assíncronos.
+version: 1.0.0
+homepage: https://github.com/joelabs/cielo_payments
+repository: https://github.com/joelabs/cielo_payments
+issue_tracker: https://github.com/joelabs/cielo_payments/issues
 
 environment:
   sdk: '>=3.1.0 <4.0.0'
