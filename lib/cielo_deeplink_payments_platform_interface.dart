@@ -16,26 +16,11 @@ abstract class CieloDeeplinkPaymentsPlatform {
   /// The current instance of [CieloDeeplinkPaymentsPlatform].
   ///
   /// By default, this is set to [MethodChannelCieloDeeplinkPayments].
-  static CieloDeeplinkPaymentsPlatform _instance =
+  static CieloDeeplinkPaymentsPlatform instance =
       MethodChannelCieloDeeplinkPayments();
 
   static Stream<Order> get onTransaction =>
       MethodChannelCieloDeeplinkPayments.onTransaction;
-
-  /// Gets the current platform-specific implementation instance.
-  static CieloDeeplinkPaymentsPlatform get instance => _instance;
-
-  /// Sets the platform-specific implementation instance.
-  ///
-  /// This allows for custom implementations, such as mocks for testing.
-  ///
-  /// Example:
-  /// ```dart
-  /// CieloDeeplinkPaymentsPlatform.instance = MockCieloDeeplinkPaymentsPlatform();
-  /// ```
-  static set instance(CieloDeeplinkPaymentsPlatform instance) {
-    _instance = instance;
-  }
 
   /// Processes a payment with the provided parameters.
   ///

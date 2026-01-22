@@ -13,31 +13,5 @@ export 'models/pos/item_print_model.dart';
 /// replacing the [CieloDeeplinkPayments] instance, enabling flexibility
 /// in testing or extending functionality.
 class CieloPayments {
-  static CieloDeeplinkPayments _deeplink = CieloDeeplinkPayments();
-
-  /// Exposes the instance of the `CieloDeeplinkPayments` class.
-  ///
-  /// This allows access to the payment and refund functionalities
-  /// implemented in [CieloDeeplinkPayments].
-  ///
-  /// Example:
-  /// ```dart
-  /// final deeplink = CieloPayments.deeplink;
-  /// ```
-  static CieloDeeplinkPayments get deeplink => _deeplink;
-
-  /// Replaces the instance of `CieloDeeplinkPayments` if needed.
-  ///
-  /// This method can be used to provide a mock or alternative implementation
-  /// for testing or extending functionality.
-  ///
-  /// Example:
-  /// ```dart
-  /// CieloPayments.deeplink = MockCieloDeeplinkPayments();
-  /// ```
-  ///
-  /// [instance] must be a valid instance of [CieloDeeplinkPayments].
-  static set deeplink(CieloDeeplinkPayments instance) {
-    _deeplink = instance;
-  }
+  static CieloDeeplinkPayments deeplink = CieloDeeplinkPayments();
 }

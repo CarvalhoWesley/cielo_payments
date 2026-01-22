@@ -84,7 +84,7 @@ class _PaymentAppState extends State<PaymentApp>
     final logo = await rootBundle.load('assets/images/logo.png');
     String base64 = base64Encode(logo.buffer.asUint8List());
 
-    CieloPayments.deeplink.print(
+    await CieloPayments.deeplink.print(
       [
         ItemPrintModel.text(
           content: 'Alinhamento à esquerda',
@@ -231,6 +231,17 @@ class _PaymentAppState extends State<PaymentApp>
                     ElevatedButton(
                       onPressed: () => _processPrint(),
                       child: const Text('TESTAR IMPRESSORA'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        for (int i = 0; i < 5; i++) {
+                          log('Starting print iteration ${i + 1} of 5');
+                          await _processPrint();
+                          log('Completed print iteration ${i + 1} of 5');
+                        }
+                        log('All 5 print iterations completed!');
+                      },
+                      child: const Text('TESTAR IMPRESSÃO MÚLTIPLA'),
                     ),
                   ],
                 ),

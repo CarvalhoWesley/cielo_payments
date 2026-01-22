@@ -27,6 +27,12 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
 
   /// Tracks whether a payment or refund operation is currently in progress.
   bool _transactionInProgress = false;
+  
+  /// Completer para aguardar o fim da impressão
+  Completer<void>? _printCompleter;
+  
+  /// Contador de itens de impressão esperados
+  int _expectedPrintResponses = 0;
 
   /// Creates an instance of [MethodChannelCieloDeeplinkPayments].
   MethodChannelCieloDeeplinkPayments() {
@@ -35,20 +41,52 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
 
   void _startListener() async {
     methodChannel.setMethodCallHandler((call) async {
-      _transactionInProgress = false;
       try {
         if (call.method == 'onDeeplinkResponse') {
+          debugPrint('[CALLBACK] Received deeplink response');
           String? response = call.arguments['response'];
-          if (response?.isNotEmpty ?? false) {
-            var coverted = String.fromCharCodes(
-                base64Decode(response!.replaceAll("\n", "")));
-            debugPrint(coverted);
+          
+          // Decrementa o contador de respostas esperadas PRIMEIRO
+          if (_expectedPrintResponses > 0) {
+            _expectedPrintResponses--;
+            debugPrint('[CALLBACK] Print response. Remaining: $_expectedPrintResponses');
+            
+            // Só completa quando todas as impressões terminarem
+            if (_expectedPrintResponses == 0) {
+              debugPrint('[CALLBACK] All prints completed! Completing completer and resetting state');
+              _transactionInProgress = false;
+              
+              // Completa o Completer de forma assíncrona para evitar deadlock
+              final completer = _printCompleter;
+              _printCompleter = null;
+              
+              Future.microtask(() {
+                debugPrint('[CALLBACK] Completing completer asynchronously');
+                completer?.complete();
+              });
+              
+              debugPrint('[CALLBACK] Scheduled completer completion');
+            }
+          } else {
+            // Não é impressão, é pagamento - faz o parse do Order
+            debugPrint('[CALLBACK] Payment response, parsing Order');
+            if (response?.isNotEmpty ?? false) {
+              var coverted = String.fromCharCodes(
+                  base64Decode(response!.replaceAll("\n", "")));
+              debugPrint(coverted);
 
-            final order = Order.fromJson(coverted);
-            _controller.add(order);
+              final order = Order.fromJson(coverted);
+              _controller.add(order);
+            }
+            _transactionInProgress = false;
           }
         }
       } catch (e) {
+        debugPrint('[CALLBACK] Error: $e');
+        _transactionInProgress = false;
+        _expectedPrintResponses = 0;
+        _printCompleter?.completeError(e);
+        _printCompleter = null;
         rethrow;
       }
     });
@@ -100,28 +138,49 @@ class MethodChannelCieloDeeplinkPayments extends CieloDeeplinkPaymentsPlatform {
   /// Throws an exception if an error occurs during platform communication.
   @override
   Future<void> print(List<ItemPrintModel> items, String urlCallback) async {
+    debugPrint('[PRINT] Method called with ${items.length} items');
     try {
-      if (_transactionInProgress) return;
+      // Aguarda transação anterior terminar
+      debugPrint('[PRINT] Checking if transaction in progress: $_transactionInProgress');
+      while (_transactionInProgress) {
+        debugPrint('[PRINT] Waiting for previous transaction to finish...');
+        await Future.delayed(const Duration(seconds: 1));
+      }
 
+      debugPrint('[PRINT] Setting transaction in progress');
       _transactionInProgress = true;
+      _printCompleter = Completer<void>();
 
+      final List<String> requests = [];
       for (var item in items) {
         final object = await item.toPrint();
-
         final request = base64.encode(utf8.encode(jsonEncode(object)));
-
-        await Future.delayed(const Duration(milliseconds: 100));
-
-        await methodChannel.invokeMethod(
-          'printDeeplink',
-          <String, dynamic>{
-            'request': request,
-            'urlCallback': urlCallback,
-          },
-        );
+        requests.add(request);
       }
+
+      // Define quantas respostas esperamos (uma para cada item)
+      _expectedPrintResponses = requests.length;
+      debugPrint('Starting print with ${requests.length} items');
+
+      debugPrint('[PRINT] Calling method channel');
+      await methodChannel.invokeMethod(
+        'printDeeplink',
+        <String, dynamic>{
+          'requests': requests,
+          'urlCallback': urlCallback,
+        },
+      );
+      
+      debugPrint('[PRINT] Method channel returned, waiting for completer');
+      // Aguarda todas as impressões completarem
+      await _printCompleter!.future;
+      debugPrint('[PRINT] Completer completed! Method returning.');
     } catch (e) {
+      debugPrint('[PRINT] Error: $e');
       _transactionInProgress = false;
+      _expectedPrintResponses = 0;
+      _printCompleter = null;
+      rethrow;
     }
   }
 }
