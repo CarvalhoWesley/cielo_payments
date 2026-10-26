@@ -15,6 +15,7 @@ class CieloPaymentsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
     private var channel: MethodChannel? = null
     private var activity: Activity? = null
     private var deeplinkUsecase: DeeplinkUsecase? = null
+    private var mifareUsecase: MifareUsecase? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "cielo_payments")
@@ -25,6 +26,7 @@ class CieloPaymentsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
         activity = binding.activity
         channel?.setMethodCallHandler(this) // só aqui!
         deeplinkUsecase = DeeplinkUsecase(activity, channel!!)
+        mifareUsecase = MifareUsecase(binding.activity)
         binding.addOnNewIntentListener(::handleNewIntent)
     }
 
@@ -32,6 +34,16 @@ class CieloPaymentsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
         when (call.method) {
             "paymentDeeplink" -> deeplinkUsecase?.doPayment(call, result)
             "printDeeplink" -> deeplinkUsecase?.doPrint(call, result)
+            "mifareDetectCard" -> mifareUsecase?.detectCard(result)
+            "mifareAuthenticateSector" -> mifareUsecase?.authenticateSector(call, result)
+            "mifareReadBlock" -> mifareUsecase?.readBlock(call, result)
+            "mifareWriteBlock" -> mifareUsecase?.writeBlock(call, result)
+            "mifareIncrementValue" -> mifareUsecase?.incrementValue(call, result)
+            "mifareDecrementValue" -> mifareUsecase?.decrementValue(call, result)
+            "mifareBackupBlock" -> mifareUsecase?.backupBlock(call, result)
+            "mifareRestoreBlock" -> mifareUsecase?.restoreBlock(call, result)
+            "mifarePowerOff" -> mifareUsecase?.powerOff(result)
+            "mifareCancelDetection" -> mifareUsecase?.cancelDetection(result)
             else -> result.notImplemented()
         }
     }
@@ -39,6 +51,8 @@ class CieloPaymentsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
     override fun onDetachedFromActivity() {
         activity = null
         deeplinkUsecase = null
+        mifareUsecase?.dispose()
+        mifareUsecase = null
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {

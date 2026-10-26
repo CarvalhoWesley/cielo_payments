@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="cielo.lio.permission.CASHLESS" />
+
     <queries>
         <package android:name="com.ads.lio.uriappclient" />
+        <package android:name="cielo.lio.cashless" />
     </queries>
 </manifest>

@@ -1,3 +1,9 @@
+## Unreleased
+
+* Suporte a cartões Mifare Classic 1K via serviço `cielo.lio.cashless` (`CieloPayments.mifare`)
+* Cartão de evento cashless (`CieloMifareCashless`), compatível com o layout da Stone/PagSeguro
+* Telas de Mifare no app de exemplo
+
 ## 1.0.1
 
 * Otimização no tempo de espera da impressão múltipla (reduzido de 1s para 100ms)
